@@ -10,8 +10,8 @@ public class ConsoleUI {
 
     public static void main(String[] args) {
         // 配置服务器信息
-        String serverAddress = "localhost"; // 替换为实际服务器地址
-        int serverPort = 12345; // 替换为实际服务器端口
+        String serverAddress = "18.141.209.212"; // 替换为实际服务器地址
+        int serverPort = 8888; // 替换为实际服务器端口
 
         // 创建 UdpClient 实例
         UdpClient udpClient = new UdpClient(serverAddress, serverPort);
@@ -33,59 +33,47 @@ public class ConsoleUI {
             scanner.nextLine(); // Consume newline character
 
             Map<String, String> requestPayload = new HashMap<>();
-            String requestId = "1234"; // 这里可以使用随机生成的 ID
+            String requestId = String.valueOf(System.currentTimeMillis()); // 使用当前时间戳生成 request_id
+
+            // 构造请求
+            requestPayload.put("request_id", requestId);
+            requestPayload.put("action", String.valueOf(choice));
 
             switch (choice) {
                 case 1: // 查询航班 ID
                     System.out.print("Enter source: ");
                     String source = scanner.nextLine();
-
                     System.out.print("Enter destination: ");
                     String destination = scanner.nextLine();
 
-                    requestPayload.put("action", "1");
                     requestPayload.put("source", source);
                     requestPayload.put("destination", destination);
-                    requestPayload.put("request_id", requestId);
-
                     break;
 
                 case 2: // 查询航班详情
                     System.out.print("Enter flight ID: ");
                     String flightId = scanner.nextLine();
-
-                    requestPayload.put("action", "2");
                     requestPayload.put("flight_id", flightId);
-                    requestPayload.put("request_id", requestId);
-
                     break;
 
                 case 3: // 预订座位
                     System.out.print("Enter flight ID: ");
                     flightId = scanner.nextLine();
-
                     System.out.print("Enter number of seats to reserve: ");
                     String seats = scanner.nextLine();
 
-                    requestPayload.put("action", "3");
                     requestPayload.put("flight_id", flightId);
                     requestPayload.put("seats", seats);
-                    requestPayload.put("request_id", requestId);
-
                     break;
 
                 case 4: // 监控航班
                     System.out.print("Enter flight ID: ");
                     flightId = scanner.nextLine();
-
                     System.out.print("Enter monitor interval (seconds): ");
                     String monitorInterval = scanner.nextLine();
 
-                    requestPayload.put("action", "4");
                     requestPayload.put("flight_id", flightId);
                     requestPayload.put("monitor_interval", monitorInterval);
-                    requestPayload.put("request_id", requestId);
-
                     break;
 
                 case 5: // 退出
@@ -98,11 +86,9 @@ public class ConsoleUI {
                     continue;
             }
 
+            // 发送请求并获取响应
             try {
-                // 发送请求并获取响应
                 Response response = udpClient.sendRequest(requestPayload);
-
-                // 打印响应
                 System.out.println("Response received: " + response.getPayload());
 
             } catch (Exception e) {

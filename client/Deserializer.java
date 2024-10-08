@@ -14,8 +14,22 @@ public class Deserializer {
         ByteBuffer buffer = ByteBuffer.wrap(data);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
 
-        // 反序列化 Map
-        Map<String, String> map = deserializeMap(buffer);
+        Map<String, String> map = new HashMap<>();
+
+        // 反序列化 request_id
+        String requestId = deserializeString(buffer);
+        map.put("request_id", requestId);
+
+        // 反序列化 status
+        int statusCode = deserializeInt32(buffer);
+        map.put("status", String.valueOf(statusCode));
+
+        // 反序列化其他参数
+        while (buffer.remaining() > 0) {
+            String key = deserializeString(buffer);
+            String value = deserializeString(buffer);
+            map.put(key, value);
+        }
 
         return new Response(map);
     }
@@ -25,30 +39,11 @@ public class Deserializer {
         return buffer.getInt();
     }
 
-    // 反序列化 Bool
-    private boolean deserializeBool(ByteBuffer buffer) {
-        return buffer.get() == 1;
-    }
-
     // 反序列化 String
     private String deserializeString(ByteBuffer buffer) {
         int length = buffer.getInt();
         byte[] stringBytes = new byte[length];
         buffer.get(stringBytes);
         return new String(stringBytes);
-    }
-
-    // 反序列化 Map
-    private Map<String, String> deserializeMap(ByteBuffer buffer) {
-        Map<String, String> map = new HashMap<>();
-        int mapSize = buffer.getInt();
-
-        for (int i = 0; i < mapSize; i++) {
-            String key = deserializeString(buffer);
-            String value = deserializeString(buffer); // 假设值类型为 String，可扩展支持其他类型
-            map.put(key, value);
-        }
-
-        return map;
     }
 }
