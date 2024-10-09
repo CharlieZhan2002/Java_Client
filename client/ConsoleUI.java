@@ -1,8 +1,8 @@
 package client;
 
 import models.Response;
-
 import java.util.HashMap;
+import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -28,9 +28,19 @@ public class ConsoleUI {
             System.out.println("4. Monitor Flight");
             System.out.println("5. Exit");
 
-            System.out.print("Your choice: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline character
+            int choice = -1; // 初始化choice为无效值
+
+            // 捕获用户输入的异常
+            while (choice == -1) {
+                System.out.print("Your choice: ");
+                try {
+                    choice = scanner.nextInt();
+                    scanner.nextLine(); // Consume newline character
+                } catch (InputMismatchException e) {
+                    System.out.println("Invalid input, please enter a valid number.");
+                    scanner.next(); // 消耗错误的输入，继续循环等待用户输入
+                }
+            }
 
             Map<String, String> requestPayload = new HashMap<>();
             String requestId = String.valueOf(System.currentTimeMillis()); // 使用当前时间戳生成 request_id
@@ -83,13 +93,15 @@ public class ConsoleUI {
 
                 default:
                     System.out.println("Invalid choice, please try again.");
+                    choice = -1; // 重置choice，使用户重新选择
                     continue;
             }
 
             // 发送请求并获取响应
             try {
                 Response response = udpClient.sendRequest(requestPayload);
-                System.out.println("Response received: " + response.getPayload());
+                // 打印 Response 对象
+                System.out.println("Response received: " + response.toString());
 
             } catch (Exception e) {
                 System.err.println("An error occurred: " + e.getMessage());
