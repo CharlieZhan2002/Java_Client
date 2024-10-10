@@ -35,7 +35,7 @@ public class ConsoleUI {
                 System.out.print("Your choice: ");
                 try {
                     choice = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline character
+                    scanner.nextLine(); // 消耗换行符
                 } catch (InputMismatchException e) {
                     System.out.println("Invalid input, please enter a valid number.");
                     scanner.next(); // 消耗错误的输入，继续循环等待用户输入
@@ -43,11 +43,10 @@ public class ConsoleUI {
             }
 
             Map<String, String> requestPayload = new HashMap<>();
-            String requestId = String.valueOf(System.currentTimeMillis()); // 使用当前时间戳生成 request_id
-
-            // 构造请求
+            String requestId = String.valueOf(System.currentTimeMillis());  // 使用当前时间戳生成 request_id
             requestPayload.put("request_id", requestId);
-            requestPayload.put("action", String.valueOf(choice));
+
+            String actionType = "";  // 根据用户的选择设置 actionType
 
             switch (choice) {
                 case 1: // 查询航班 ID
@@ -58,12 +57,16 @@ public class ConsoleUI {
 
                     requestPayload.put("source", source);
                     requestPayload.put("destination", destination);
+                    requestPayload.put("action", "1");
+                    actionType = "QueryFlightIds";
                     break;
 
                 case 2: // 查询航班详情
                     System.out.print("Enter flight ID: ");
                     String flightId = scanner.nextLine();
                     requestPayload.put("flight_id", flightId);
+                    requestPayload.put("action", "2");
+                    actionType = "QueryFlightDetails";
                     break;
 
                 case 3: // 预订座位
@@ -74,6 +77,8 @@ public class ConsoleUI {
 
                     requestPayload.put("flight_id", flightId);
                     requestPayload.put("seats", seats);
+                    requestPayload.put("action", "3");
+                    actionType = "ReserveSeats";
                     break;
 
                 case 4: // 监控航班
@@ -84,6 +89,8 @@ public class ConsoleUI {
 
                     requestPayload.put("flight_id", flightId);
                     requestPayload.put("monitor_interval", monitorInterval);
+                    requestPayload.put("action", "4");
+                    actionType = "MonitorFlight";
                     break;
 
                 case 5: // 退出
@@ -99,7 +106,7 @@ public class ConsoleUI {
 
             // 发送请求并获取响应
             try {
-                Response response = udpClient.sendRequest(requestPayload);
+                Response response = udpClient.sendRequest(requestPayload, actionType);
                 // 打印 Response 对象
                 System.out.println("Response received: " + response.toString());
 
