@@ -10,15 +10,11 @@ public class Deserializer {
 
     // 将字节数组反序列化为 Map<String, Object>
     public Map<String, Object> deserialize(byte[] data) throws Exception {
-        // 打印接收到的原始消息
-        System.out.println("Raw response data: " + bytesToHex(data));
-
         ByteBuffer buffer = ByteBuffer.wrap(data);
         buffer.order(ByteOrder.LITTLE_ENDIAN); // 使用小端序
 
         // 读取类型标识符
         byte dataType = buffer.get();
-        System.out.println("Data type received: " + dataType);
 
         // 处理不同的数据类型
         if (dataType == 6) { // 类型标识符 6 表示 Map
@@ -37,9 +33,8 @@ public class Deserializer {
         if (mapSizeType != 1) {  // 检查类型标识符是否为 Int32 类型
             throw new IllegalArgumentException("Expected int type for map size, but got: " + mapSizeType);
         }
-        
+
         int mapSize = buffer.getInt(); // 读取 map 大小
-        System.out.println("Map size: " + mapSize);
 
         // 避免无效的 Map 大小
         if (mapSize < 0 || mapSize > buffer.remaining()) {
@@ -51,7 +46,6 @@ public class Deserializer {
             String key = deserializeString(buffer); // 反序列化键（字符串）
             String value = deserializeString(buffer); // 反序列化值（字符串）
             map.put(key, value);
-            System.out.println("Key: " + key + ", Value: " + value);
         }
 
         return map;
@@ -77,7 +71,6 @@ public class Deserializer {
 
         // 读取字符串长度
         int length = buffer.getInt();
-        System.out.println("String length: " + length);
 
         // 检查长度是否合理
         if (length < 0 || length > buffer.remaining()) {
@@ -87,9 +80,7 @@ public class Deserializer {
         // 读取字符串内容
         byte[] stringBytes = new byte[length];
         buffer.get(stringBytes); // 读取字符串内容
-        String value = new String(stringBytes, "UTF-8"); // 转换为 UTF-8 字符串
-        System.out.println("Deserialized String: " + value);
-        return value;
+        return new String(stringBytes, "UTF-8"); // 转换为 UTF-8 字符串
     }
 
     // 将字节数组转换为十六进制字符串（用于调试输出）

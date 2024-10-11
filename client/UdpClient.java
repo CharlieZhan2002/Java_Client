@@ -72,10 +72,15 @@ public class UdpClient {
         switch (actionType) {
             case "QueryFlightIds":
             case "QueryFlightDetails":
-            case "ReserveSeats":
             case "MonitorFlight":
+            case "ReserveSeatsCheapestPrice":  
+            case "ReserveSeatsBelowPrice":     
+            case "ResetSeatsData":             
                 return "at-most-once";
-            // 如果有更多不同类型的 action, 可以在这里添加
+                
+            case "ReserveSeats":
+                return "at-least-once";  
+
             default:
                 throw new IllegalArgumentException("Unknown action type: " + actionType);
         }

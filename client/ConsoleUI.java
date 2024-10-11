@@ -26,7 +26,10 @@ public class ConsoleUI {
             System.out.println("2. Query Flight Details");
             System.out.println("3. Reserve Seats");
             System.out.println("4. Monitor Flight");
-            System.out.println("5. Exit");
+            System.out.println("5. Reserve Cheapest Flight");
+            System.out.println("6. Reserve Seats Below Price");
+            System.out.println("7. Reset All Flight Data");
+            System.out.println("8. Exit");
 
             int choice = -1; // 初始化choice为无效值
 
@@ -93,7 +96,39 @@ public class ConsoleUI {
                     actionType = "MonitorFlight";
                     break;
 
-                case 5: // 退出
+                case 5: // 预订价格最便宜航班的座位
+                    System.out.print("Enter source: ");
+                    source = scanner.nextLine();
+                    System.out.print("Enter destination: ");
+                    destination = scanner.nextLine();
+
+                    requestPayload.put("source", source);
+                    requestPayload.put("destination", destination);
+                    requestPayload.put("action", "6");
+                    actionType = "ReserveSeatsCheapestPrice";
+                    break;
+
+                case 6: // 预订某个价格以下的所有座位
+                    System.out.print("Enter source: ");
+                    source = scanner.nextLine();
+                    System.out.print("Enter destination: ");
+                    destination = scanner.nextLine();
+                    System.out.print("Enter maximum price: ");
+                    String maxPrice = scanner.nextLine();
+
+                    requestPayload.put("source", source);
+                    requestPayload.put("destination", destination);
+                    requestPayload.put("max_price", maxPrice);
+                    requestPayload.put("action", "7");
+                    actionType = "ReserveSeatsBelowPrice";
+                    break;
+
+                case 7: // 重置所有航班座位数据
+                    requestPayload.put("action", "8");
+                    actionType = "ResetSeatsData";
+                    break;
+
+                case 8: // 退出
                     running = false;
                     System.out.println("Exiting...");
                     continue;
@@ -107,12 +142,11 @@ public class ConsoleUI {
             // 发送请求并获取响应
             try {
                 Response response = udpClient.sendRequest(requestPayload, actionType);
-                // 打印 Response 对象
-                System.out.println("Response received: " + response.toString());
+                // 打印简洁的 Response 对象
+                System.out.println("Response: " + response.getStatus() + " - " + response.getMessage());
 
             } catch (Exception e) {
-                System.err.println("An error occurred: " + e.getMessage());
-                e.printStackTrace();
+                System.out.println("An error occurred while processing the request.");
             }
         }
 
