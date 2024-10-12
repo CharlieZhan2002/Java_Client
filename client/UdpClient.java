@@ -31,9 +31,6 @@ public class UdpClient {
         // 序列化请求
         byte[] requestData = serializer.serialize(request);
 
-        // 添加调试日志，打印序列化后的请求数据
-        System.out.println("Serialized Request Data: " + java.util.Arrays.toString(requestData));
-
         int attempts = 0;
         boolean receivedResponse = false;
         byte[] responseData = null;
@@ -41,7 +38,6 @@ public class UdpClient {
         // 重试逻辑，最多重试 MAX_RETRIES 次
         while (attempts < MAX_RETRIES && !receivedResponse) {
             try {
-                System.out.println("Attempt " + (attempts + 1) + " to send request...");
                 // 发送请求并接收响应
                 responseData = networkManager.sendRequest(requestData);
                 receivedResponse = true;  // 如果成功收到响应，退出循环
@@ -49,10 +45,7 @@ public class UdpClient {
             } catch (SocketTimeoutException e) {
                 // 超时未接收到响应，尝试重发请求
                 attempts++;
-                if (attempts < MAX_RETRIES) {
-                    System.out.println("No response received. Retrying... (" + attempts + ")");
-                } else {
-                    System.out.println("Max retries reached. No response received.");
+                if (attempts >= MAX_RETRIES) {
                     throw new Exception("Failed to receive response after " + MAX_RETRIES + " attempts.");
                 }
             }
@@ -61,8 +54,8 @@ public class UdpClient {
         // 反序列化响应为 Map<String, Object>
         Map<String, Object> responseMap = deserializer.deserialize(responseData);
 
-        // 将反序列化的 Map 转换为 Response 对象
-        Response response = new Response(responseMap);
+        // 将反序列化的 Map 转换为 Response 对象，并传递 actionType
+        Response response = new Response(responseMap, actionType);
 
         return response;
     }
@@ -73,14 +66,12 @@ public class UdpClient {
             case "QueryFlightIds":
             case "QueryFlightDetails":
             case "MonitorFlight":
-            case "ReserveSeatsCheapestPrice":  
-            case "ReserveSeatsBelowPrice":     
-            case "ResetSeatsData":             
+            case "ReserveSeatsCheapestPrice":
+            case "ReserveSeatsBelowPrice":
+            case "ResetSeatsData":
                 return "at-most-once";
-                
             case "ReserveSeats":
-                return "at-least-once";  
-
+                return "at-least-once";
             default:
                 throw new IllegalArgumentException("Unknown action type: " + actionType);
         }

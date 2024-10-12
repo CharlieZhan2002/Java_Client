@@ -142,8 +142,7 @@ public class ConsoleUI {
             // 发送请求并获取响应
             try {
                 Response response = udpClient.sendRequest(requestPayload, actionType);
-                // 打印简洁的 Response 对象
-                System.out.println("Response: " + response.getStatus() + " - " + response.getMessage());
+                System.out.println(response);
 
             } catch (Exception e) {
                 System.out.println("An error occurred while processing the request.");
