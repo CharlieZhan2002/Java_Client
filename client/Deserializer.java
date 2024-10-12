@@ -30,7 +30,7 @@ public class Deserializer {
 
         // 读取 Map 的大小 (int 类型)
         byte mapSizeType = buffer.get();
-        if (mapSizeType != 1) {  // 检查类型标识符是否为 Int32 类型
+        if (mapSizeType != 1) { // 检查类型标识符是否为 Int32 类型
             throw new IllegalArgumentException("Expected int type for map size, but got: " + mapSizeType);
         }
 
